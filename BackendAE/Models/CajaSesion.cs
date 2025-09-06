@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+
 
 namespace BackendAE.Models
 {
@@ -16,7 +16,7 @@ namespace BackendAE.Models
         [Required]
         [Column(TypeName = "decimal(12, 2)")]
         public required decimal MontoApertura { get; set; }
-        [JsonConverter(typeof(DateTimeJsonConverter))]
+        
         public DateTime? FechaCierre { get; set; }
 
         [Column(TypeName = "decimal(12, 2)")]

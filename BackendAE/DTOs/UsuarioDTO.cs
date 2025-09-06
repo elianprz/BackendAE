@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace BackendAE.DTOs
+﻿namespace BackendAE.DTOs
 {
     public class UsuarioDTO
     {
@@ -18,7 +16,8 @@ namespace BackendAE.DTOs
 
         public string? CUI { get; set; }
 
-        [JsonConverter(typeof(DateTimeJsonConverter))]
+        public DateTime? FechaIngreso { get; set; }
+
         public DateTime? FechaNacimiento { get; set; }
 
         public string? Telefono { get; set; }

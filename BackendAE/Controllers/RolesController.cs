@@ -43,14 +43,20 @@ namespace BackendAE.Controllers
         // POST: api/Roles
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult> CrearRol([FromBody] RolDTO dto)
+        public async Task<ActionResult> CrearRol([FromBody] RolDTOCrear dto)
         {
-            var rol = _mapper.Map<Rol>(dto);
+            //var rol = _mapper.Map<Rol>(dto);
+            //_context.Roles.Add(rol);
+            //await _context.SaveChangesAsync();
+
+            //var rolDTO = _mapper.Map<RolDTO>(rol);
+            //return CreatedAtAction(nameof(GetRol), new { id = rol.RolId }, rolDTO);
+            var rol = _mapper.Map<Rol>(dto);  // convierte el DTO a la entidad
             _context.Roles.Add(rol);
             await _context.SaveChangesAsync();
 
-            var rolDTO = _mapper.Map<RolDTO>(rol);
-            return CreatedAtAction(nameof(GetRol), new { id = rol.RolId }, rolDTO);
+            var rolDTO = _mapper.Map<RolDTO>(rol); // opcional, para devolver al cliente
+            return Ok(rolDTO);
         }
 
         // PUT: api/Roles/5

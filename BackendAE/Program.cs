@@ -3,28 +3,14 @@ using BackendAE.Helpers;
 using BackendAE.Services; // Asegúrate de que este using sea correcto para tu proyecto
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models; // Necesario para la configuración de Swagger
-using System.ComponentModel;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de formato de fecha global
-builder.Services.Configure<JsonOptions>(options =>
-{
-    options.JsonSerializerOptions.Converters.Add(new DateTimeConverter("dd-MM-yyyy"));
-});
-
-// Add services to the container.
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new DateTimeJsonConverter());
-        options.JsonSerializerOptions.Converters.Add(new NullableDateTimeJsonConverter());
-    });
+builder.Services.AddControllers();
 
 // Roles access management
 builder.Services.AddSingleton<IAuthorizationHandler, DynamicRoleHandler>();

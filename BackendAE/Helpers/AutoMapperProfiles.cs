@@ -39,7 +39,7 @@ namespace BackendAE.Helpers
             // Roles
             CreateMap<Rol, RolDTO>();
             CreateMap<RolDTO, Rol>();
-
+            CreateMap<RolDTOCrear, Rol>(); // <<--- este faltaba
             // Productos
             CreateMap<Producto, ProductoDTO>()
             .ForMember(dest => dest.NombreCategoria, opt =>

@@ -1,11 +1,9 @@
-﻿using System.Text.Json.Serialization;
-
-namespace BackendAE.DTOs
+﻿namespace BackendAE.DTOs
 {
     public class VentaDTO
     {
         public int VentaId { get; set; }
-        [JsonConverter(typeof(DateTimeJsonConverter))]
+        
         public DateTime FechaVenta { get; set; }
 
         //public string CodigoVenta { get; set; } = null!;

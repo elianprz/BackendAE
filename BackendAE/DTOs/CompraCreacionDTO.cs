@@ -1,10 +1,7 @@
-﻿using System.Text.Json.Serialization;
-
-namespace BackendAE.DTOs
+﻿namespace BackendAE.DTOs
 {
     public class CompraCreacionDTO
     {
-        [JsonConverter(typeof(DateTimeJsonConverter))]
         public required DateTime FechaCompra { get; set; }
 
         public string? Observacion { get; set; }

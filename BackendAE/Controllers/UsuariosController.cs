@@ -173,7 +173,7 @@ namespace BackendAE.Controllers
             return NoContent();
         }
 
-       [Authorize(Roles = "Admin,Empleado")]
+        [Authorize(Roles = "Admin,Empleado")]
         [HttpPatch("{id:int}/cambiar-contrasena")]
         public async Task<ActionResult> CambiarContrasena(int id, [FromBody] CambioContrasenaDTO dto)
         {
@@ -190,6 +190,61 @@ namespace BackendAE.Controllers
 
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        // UsuariosController.cs
+        [HttpPost("recuperar-contrasena")]
+        public async Task<ActionResult> RecuperarContrasena([FromBody] RecuperarContrasenaDTO dto)
+        {
+            // ... (Tu lógica para verificar el correo y actualizar la contraseña)
+            if (string.IsNullOrEmpty(dto.Email))
+            {
+                return BadRequest("El correo electrónico es requerido.");
+            }
+
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (usuario == null)
+            {
+                return Ok("Si el correo electrónico está asociado a una cuenta, recibirás un correo con una nueva contraseña temporal.");
+            }
+
+            // Generar una nueva contraseña temporal
+            var nuevaContrasenaTemporal = Guid.NewGuid().ToString().Substring(0, 8);
+
+            // Cifrar y actualizar la contraseña del usuario
+            usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(nuevaContrasenaTemporal);
+            usuario.FechaUltimoCambioContrasena = DateTime.UtcNow;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+                // Si la actualización es exitosa, intenta enviar el correo.
+                var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", "RecuperarContrasena.html");
+                var replacements = new Dictionary<string, string>
+        {
+            { "@PrimerNombre", usuario.PrimerNombre },
+            { "@NombreUsuario", usuario.NombreUsuario },
+            { "@ContrasenaTemporal", nuevaContrasenaTemporal }
+        };
+
+                await _emailService.SendEmailAsync(usuario.Email, "Recuperación de contraseña", templatePath, replacements);
+
+                return Ok("Se ha enviado una nueva contraseña temporal a tu correo electrónico.");
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, "Ocurrió un error al intentar guardar la nueva contraseña.");
+            }
+            catch (Exception ex)
+            {
+                // En caso de que falle el envío del correo, puedes devolver un error o
+                // simplemente no hacer nada y dejar que el frontend reciba la respuesta.
+                // Aquí retornaremos un mensaje de éxito, ya que la contraseña ya se actualizó
+                // en la base de datos.
+                Console.WriteLine($"Error al enviar el correo: {ex.Message}");
+                return Ok("La contraseña ha sido actualizada, pero hubo un problema al enviar el correo de notificación. Por favor, revisa tu bandeja de entrada.");
+            }
         }
 
         // DELETE: api/Usuarios/5
