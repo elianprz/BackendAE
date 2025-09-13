@@ -17,7 +17,7 @@ namespace BackendAE.Models
         public string? Descripcion { get; set; }
 
         [Required]
-        public required bool Activa { get; set; }
+        public required bool Estado { get; set; }
 
         // Relación 1:N con CajaSesion
         public ICollection<CajaSesion>? SesionesCaja { get; set; }

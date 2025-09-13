@@ -4,17 +4,17 @@ namespace BackendAE.DTOs
 {
     public class CajaSesionCreacionDTO
     {
-        
-        public required DateTime FechaApertura { get; set; } = DateTime.Now;
+
+        public DateTime FechaApertura { get; set; }
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "El monto de apertura no puede ser un valor negativo.")]
         public required decimal MontoApertura { get; set; }
-        
+
         public DateTime? FechaCierre { get; set; }
 
         public required decimal MontoCierre { get; set; }
 
-        public bool Estado { get; set; } = true;
+        public bool Estado { get; set; }
         public string? Observacion { get; set; }
 
         [Required]

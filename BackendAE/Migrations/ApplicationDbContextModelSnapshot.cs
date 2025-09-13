@@ -30,12 +30,12 @@ namespace BackendAE.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CajaId"));
 
-                    b.Property<bool>("Activa")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Descripcion")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -58,10 +58,8 @@ namespace BackendAE.Migrations
                     b.Property<int>("CajaId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<bool>("Estado")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("FechaApertura")
                         .HasColumnType("datetime2");

@@ -6,6 +6,6 @@
 
         public string? Descripcion { get; set; }
 
-        public bool Estado { get; set; } = true;
+        public bool Estado { get; set; }
     }
 }

@@ -8,6 +8,6 @@
 
         public string? Descripcion { get; set; }
 
-        public bool Activa { get; set; }
+        public bool Estado { get; set; }
     }
 }

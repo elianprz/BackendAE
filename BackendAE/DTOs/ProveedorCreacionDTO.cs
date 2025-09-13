@@ -10,7 +10,7 @@
 
         public string? ImagenUrl { get; set; }
 
-        public bool Estado { get; set; } = true;
+        public bool Estado { get; set; }
 
         public int CatProveedorId { get; set; }
     }

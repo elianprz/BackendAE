@@ -12,7 +12,7 @@
 
         public decimal MontoCierre { get; set; }
 
-        public string Estado { get; set; } = null!;
+        public bool Estado { get; set; }
 
         public string? Observacion { get; set; }
 

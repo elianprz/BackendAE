@@ -11,7 +11,7 @@ namespace BackendAE.DTOs
         [StringLength(250, ErrorMessage = "La descripción no puede exceder los 250 caracteres.")]
         public string? Descripcion { get; set; }
 
-        public bool Estado { get; set; } = true;
+        public bool Estado { get; set; }
 
         [Required(ErrorMessage = "El stock es obligatorio.")]
         [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser un valor negativo.")]

@@ -23,8 +23,7 @@ namespace BackendAE.Models
         public decimal MontoCierre { get; set; }
 
         [Required]
-        [StringLength(10)]
-        public required string Estado { get; set; }
+        public required bool Estado { get; set; }
 
         [StringLength(250)]
         public string? Observacion { get; set; }

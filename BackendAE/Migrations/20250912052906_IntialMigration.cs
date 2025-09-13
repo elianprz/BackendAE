@@ -19,7 +19,7 @@ namespace BackendAE.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    Activa = table.Column<bool>(type: "bit", nullable: false)
+                    Estado = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -187,7 +187,7 @@ namespace BackendAE.Migrations
                     MontoApertura = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     FechaCierre = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MontoCierre = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
-                    Estado = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Estado = table.Column<bool>(type: "bit", nullable: false),
                     Observacion = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
                     CajaId = table.Column<int>(type: "int", nullable: false),
                     UsuarioAperturaId = table.Column<int>(type: "int", nullable: false),
