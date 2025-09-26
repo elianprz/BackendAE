@@ -69,6 +69,20 @@ namespace BackendAE.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id:int}/estado")]
+        [Authorize(Roles = "Admin,Empleado")]
+        public async Task<ActionResult> ToggleEstado(int id)
+        {
+            var caja = await _context.Cajas.FindAsync(id);
+            if (caja == null) return NotFound();
+
+            caja.Estado = !caja.Estado;
+            await _context.SaveChangesAsync();
+
+            // opcional: devuelve el nuevo estado
+            return Ok(new { cajaId = caja.CajaId, estado = caja.Estado });
+        }
+
         // DELETE: api/Caja/5
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]

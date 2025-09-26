@@ -6,7 +6,7 @@
         
         public DateTime FechaVenta { get; set; }
 
-        //public string CodigoVenta { get; set; } = null!;
+        public string CodigoVenta { get; set; } = null!;
 
         public decimal Total { get; set; }
 

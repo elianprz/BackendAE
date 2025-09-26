@@ -79,7 +79,13 @@ namespace BackendAE.Helpers
 
             // Ventas
             // Mapear de entidad a DTO
-            // Mapeo bidireccional de Venta a VentaDTO y viceversa
+            CreateMap<VentaDTO, Venta>();
+
+            // ✅ CLAVE: Actualiza tu mapeo de VentaDTO a Venta para ignorar el UsuarioId
+            CreateMap<VentaDTO, Venta>()
+                .ForMember(dest => dest.UsuarioId, opt => opt.Ignore())
+                .ForMember(dest => dest.CajaSesionId, opt => opt.Ignore()); // ✅ Agrega esta línea
+
             // Mapeo de Entidad a DTO
             CreateMap<Venta, VentaDTO>()
                 .ForMember(dest => dest.DetalleVentas, opt => opt.MapFrom(src => src.DetalleVentas));

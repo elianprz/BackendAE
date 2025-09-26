@@ -85,51 +85,75 @@ namespace BackendAE.Controllers
             });
         }
 
+
         [HttpPost("login")]
+
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            // 1️⃣ Validar el modelo
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // 2️⃣ Buscar al usuario (incluimos su rol)
             var user = await _context.Usuarios
                 .Include(u => u.Rol)
                 .SingleOrDefaultAsync(u => u.NombreUsuario == request.Username);
 
+            // 3️⃣ Checar existencia y contraseña
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            {
-                return Unauthorized("Usuario o contraseña incorrectos.");
-            }
+                return Unauthorized("Credenciales inválidas.");
 
-            // Lógica de caducidad
-            var diasDeCaducidad = 90; // Puedes mover este valor a appsettings.json
+            // 4️⃣ Checar si el usuario está **habilitado** (Estado = true)
+            if (!user.Estado)
+                return Unauthorized("El usuario está deshabilitado.");
+
+            // 5️⃣ Caducidad de contraseña (opcional)
+            var diasDeCaducidad = 90;          // o cargable desde appsettings
             if (user.FechaUltimoCambioContrasena.AddDays(diasDeCaducidad) < DateTime.UtcNow)
-            {
-                // Devolver un código de estado específico o un mensaje claro
-                return Forbid("La contraseña ha caducado. Por favor, cámbiela para continuar.");
-            }
-            // Generar el token
+                return Forbid("La contraseña ha caducado. Cámbiala para continuar.");
+
+            // 6️⃣ Generar el JWT
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.UsuarioId.ToString()),
+        new Claim(ClaimTypes.Name, user.NombreUsuario),
+        new Claim(ClaimTypes.Role, user.Rol?.RolNombre ?? "sinRol"),
+        new Claim("Estado", user.Estado.ToString())   // <-- nuestro claim extra
+    };
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.UsuarioId.ToString()),
-                    new Claim(ClaimTypes.Name, user.NombreUsuario),
-                    new Claim(ClaimTypes.Role, user.Rol?.RolNombre ?? "sin6_rol")
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(30),
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(30),         // 30 min de validez (ajusta si quieres refrescos)
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new { token = tokenString });
+            // 7️⃣ Responder con el token (y opcionalmente datos de usuario)
+            return Ok(new
+            {
+                token = tokenString,
+                usuarioId = user.UsuarioId,
+                username = user.NombreUsuario,
+                role = user.Rol?.RolNombre,
+                status = user.Estado  // útil para el front, pero el claim se encarga también
+            });
         }
-    }
 
-    public class LoginRequest
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
+
+        public class LoginRequest
+        {
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
     }
 }

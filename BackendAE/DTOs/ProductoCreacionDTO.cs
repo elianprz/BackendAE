@@ -4,6 +4,7 @@ namespace BackendAE.DTOs
 {
     public class ProductoCreacionDTO
     {
+        public int ProductoId { get; set; }
         [Required(ErrorMessage = "El nombre del producto es obligatorio.")]
         [StringLength(120, ErrorMessage = "El nombre no puede exceder los 120 caracteres.")]
         public required string Nombre { get; set; }
@@ -28,8 +29,8 @@ namespace BackendAE.DTOs
         [StringLength(250, ErrorMessage = "La URL de la imagen no puede exceder los 250 caracteres.")]
         public string? ImagenUrl { get; set; }
 
-        [StringLength(40, ErrorMessage = "El SKU no puede exceder los 40 caracteres.")]
-        public string? SKU { get; set; }
+        //[StringLength(40, ErrorMessage = "El SKU no puede exceder los 40 caracteres.")]
+        //public string? SKU { get; set; }
 
         [Required(ErrorMessage = "La categoría es obligatoria.")]
         public required int CategoriaId { get; set; }
