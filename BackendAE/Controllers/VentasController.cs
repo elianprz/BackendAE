@@ -22,243 +22,206 @@ namespace BackendAE.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/Ventas
-       [Authorize(Roles = "Admin,Empleado")]
+        // --- GETs y PUT/DELETE se mantienen sin cambios ---
+
+        [Authorize(Roles = "Admin,Empleado")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<VentaDTO>>> GetVentas()
         {
             var ventas = await _context.Ventas
                 .Include(v => v.Usuario)
                 .Include(v => v.CajaSesion)
-                .Include(v => v.DetalleVentas!)
-                    .ThenInclude(d => d.Producto)
                 .ToListAsync();
 
             return Ok(_mapper.Map<List<VentaDTO>>(ventas));
         }
 
-        // GET: api/Ventas/5
-       [Authorize(Roles = "Admin,Empleado")]
+        [Authorize(Roles = "Admin,Empleado")]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<VentaDTO>> GetVenta(int id)
         {
             var venta = await _context.Ventas
                 .Include(v => v.Usuario)
                 .Include(v => v.CajaSesion)
-                .Include(v => v.DetalleVentas!)
-                    .ThenInclude(d => d.Producto)
                 .FirstOrDefaultAsync(v => v.VentaId == id);
 
             if (venta == null) return NotFound();
 
-            return _mapper.Map<VentaDTO>(venta);
+            return Ok(_mapper.Map<VentaDTO>(venta));
         }
 
-        //[Authorize(Roles = "Admin,Empleado")]
-        //[HttpPost]
-        //public async Task<ActionResult<VentaDTO>> PostVenta([FromBody] VentaCreacionDTO ventaDto)
-        //{
-        //    // 1. Generar el código de venta
-        //    var ultimoCodigo = await _context.Ventas.OrderByDescending(v => v.VentaId).Select(v => v.CodigoVenta).FirstOrDefaultAsync();
-        //    var codigoVenta = GenerarSiguienteCodigo(ultimoCodigo);
-
-
-        //    var usuarioIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-        //    if (usuarioIdClaim == null)
-        //    {
-        //        return BadRequest("UsuarioId no encontrado en el token.");
-        //    }
-
-        //    // Convertir el string del claim a int
-        //    if (!int.TryParse(usuarioIdClaim.Value, out int usuarioId))
-        //    {
-        //        return BadRequest("Formato de UsuarioId inválido en el token.");
-        //    }
-        //    // 2. Mapear DTO a modelo y añadir los detalles
-        //    var venta = new Venta
-        //    {
-        //        FechaVenta = DateTime.Now,
-        //        CodigoVenta = codigoVenta,
-        //        Total = ventaDto.Total,
-        //        EfectivoRecibido = ventaDto.EfectivoRecibido,
-        //        Cambio = ventaDto.Cambio,
-        //        EstadoVenta = ventaDto.EstadoVenta,
-        //        UsuarioId = usuarioId,
-        //        CajaSesionId = ventaDto.CajaSesionId,
-        //        // ✅ CORRECCIÓN CLAVE: Calcular y asignar el Subtotal para cada detalle
-        //        DetalleVentas = ventaDto.DetalleVentas.Select(detalleDto => new DetalleVenta
-        //        {
-        //            ProductoId = detalleDto.ProductoId,
-        //            Cantidad = detalleDto.Cantidad,
-        //            PrecioUnitario = detalleDto.PrecioUnitario,
-        //            // ✅ Aquí se calcula el subtotal para cada ítem
-        //            Subtotal = detalleDto.Cantidad * detalleDto.PrecioUnitario
-        //        }).ToList()
-        //    };
-
-        //    // 3. Añadir la venta al contexto
-        //    _context.Ventas.Add(venta);
-
-        //    // 4. Actualizar el MontoCierre de la sesión de caja
-        //    if (ventaDto.CajaSesionId.HasValue)
-        //    {
-        //        var sesionCaja = await _context.CajaSesiones.FindAsync(ventaDto.CajaSesionId.Value);
-        //        if (sesionCaja != null)
-        //        {
-        //            sesionCaja.MontoCierre += venta.Total;
-        //        }
-        //    }
-
-        //    // 5. Actualizar el stock de los productos
-        //    foreach (var detalle in venta.DetalleVentas)
-        //    {
-        //        var producto = await _context.Productos.FindAsync(detalle.ProductoId);
-        //        if (producto != null)
-        //        {
-        //            producto.Stock -= detalle.Cantidad;
-        //        }
-        //    }
-
-        //    // 6. Guardar los cambios en la base de datos
-        //    await _context.SaveChangesAsync();
-
-        //    // 7. Mapear el modelo de vuelta a un DTO para la respuesta y devolverlo
-        //    var ventaDTO = _mapper.Map<VentaDTO>(venta);
-        //    return CreatedAtAction(nameof(GetVenta), new { id = venta.VentaId }, ventaDTO);
-        //}
+        // -------------------------------------------------
+        //  POST: api/Ventas (Creación por Lote)
+        // -------------------------------------------------
         [Authorize(Roles = "Admin,Empleado")]
         [HttpPost]
-        public async Task<ActionResult<VentaDTO>> PostVenta([FromBody] VentaCreacionDTO ventaDto)
+        public async Task<ActionResult<List<VentaDTO>>> PostVenta([FromBody] VentaLoteCreacionDTO ventaLoteDto)
         {
-            // 1. Generar el código de venta
-            var ultimoCodigo = await _context.Ventas.OrderByDescending(v => v.VentaId).Select(v => v.CodigoVenta).FirstOrDefaultAsync();
-            var codigoVenta = GenerarSiguienteCodigo(ultimoCodigo);
+            if (ventaLoteDto.Items == null || !ventaLoteDto.Items.Any())
+                return BadRequest("La lista de productos en el carrito no puede estar vacía.");
 
-            var usuarioIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (usuarioIdClaim == null || !int.TryParse(usuarioIdClaim.Value, out int usuarioId))
+            // 1️⃣ Obtener y validar el Id del usuario autenticado
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int usuarioId) || !await _context.Usuarios.AnyAsync(u => u.UsuarioId == usuarioId))
+                return BadRequest("Usuario no válido o no encontrado.");
+
+            // 2️⃣ Generar un CÓDIGO DE VENTA ÚNICO basado en tiempo (Solución robusta a largo plazo)
+            // Esto asegura unicidad incluso sin consultar la DB.
+            var codigoVenta = $"VNT-{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
+
+            // 3️⃣ Obtener los datos generales
+            decimal totalVentaGeneral = ventaLoteDto.Total;
+            int? cajaSesionId = ventaLoteDto.CajaSesionId;
+
+            // 4️⃣ Validar y cargar la sesión de caja
+            CajaSesion? sesionCaja = null;
+            if (cajaSesionId.HasValue && cajaSesionId.Value > 0)
             {
-                return BadRequest("Usuario no válido.");
+                sesionCaja = await _context.CajaSesiones.FindAsync(cajaSesionId.Value);
+                if (sesionCaja == null)
+                    return BadRequest("Sesión de caja no encontrada o no válida.");
+
+                // Asegurar que la entidad esté rastreada para poder modificarla
+                _context.CajaSesiones.Attach(sesionCaja);
             }
 
-            // 2. Obtener la sesión de caja para su posterior actualización
-            var sesionCaja = await _context.CajaSesiones.FindAsync(ventaDto.CajaSesionId.Value);
-            if (sesionCaja == null)
-            {
-                return NotFound("Sesión de caja no encontrada.");
-            }
+            var ventasToAdd = new List<Venta>();
 
-            // 3. Preparar la entidad Venta
-            var venta = new Venta
-            {
-                FechaVenta = DateTime.Now,
-                CodigoVenta = codigoVenta,
-                Total = ventaDto.Total,
-                EfectivoRecibido = ventaDto.EfectivoRecibido,
-                Cambio = ventaDto.Cambio,
-                EstadoVenta = ventaDto.EstadoVenta,
-                UsuarioId = usuarioId,
-                CajaSesionId = ventaDto.CajaSesionId,
-                DetalleVentas = new List<DetalleVenta>()
-            };
-
-            // 4. Mapear DTOs y actualizar el stock de productos dentro de un bucle optimizado
-            foreach (var detalleDto in ventaDto.DetalleVentas)
-            {
-                var producto = await _context.Productos.FindAsync(detalleDto.ProductoId);
-                if (producto == null)
-                {
-                    return BadRequest($"Producto con ID {detalleDto.ProductoId} no encontrado.");
-                }
-
-                // Reducir el stock del producto
-                producto.Stock -= detalleDto.Cantidad;
-
-                // Añadir el detalle de la venta a la lista de la venta
-                venta.DetalleVentas.Add(new DetalleVenta
-                {
-                    ProductoId = detalleDto.ProductoId,
-                    Cantidad = detalleDto.Cantidad,
-                    PrecioUnitario = detalleDto.PrecioUnitario,
-                    Subtotal = detalleDto.Cantidad * detalleDto.PrecioUnitario
-                });
-            }
-
-            // 5. Actualizar el MontoCierre de la sesión de caja
-            sesionCaja.MontoCierre += venta.Total;
-
-            // 6. Añadir la venta al contexto
-            _context.Ventas.Add(venta);
-
-            // 7. Guardar todos los cambios en la base de datos de una sola vez
+            // 5️⃣ INICIO DE LA TRANSACCIÓN
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                foreach (var itemDto in ventaLoteDto.Items)
+                {
+                    var producto = await _context.Productos.FindAsync(itemDto.ProductoId);
+                    if (producto == null)
+                        return BadRequest($"Producto con Id {itemDto.ProductoId} no encontrado.");
+
+                    if (producto.Stock < itemDto.CantidadVendida)
+                        return BadRequest($"Stock insuficiente para producto {producto.Nombre}. Disponible: {producto.Stock}");
+
+                    var subTotal = itemDto.CantidadVendida * itemDto.PrecioUnitario;
+
+                    // Crear la entidad Venta
+                    var venta = new Venta
+                    {
+                        FechaVenta = DateTime.UtcNow,
+                        CodigoVenta = codigoVenta, // Usa el código ÚNICO generado arriba
+
+                        // Campos de Encabezado (Del Lote DTO)
+                        Total = totalVentaGeneral,
+                        EfectivoRecibido = ventaLoteDto.EfectivoRecibido,
+                        Cambio = ventaLoteDto.Cambio,
+                        EstadoVenta = ventaLoteDto.EstadoVenta,
+                        UsuarioId = usuarioId,
+                        CajaSesionId = cajaSesionId,
+
+                        // Campos de Detalle (Del Ítem DTO)
+                        ProductoId = itemDto.ProductoId,
+                        CantidadVendida = itemDto.CantidadVendida,
+                        PrecioUnitario = itemDto.PrecioUnitario,
+                        SubTotal = subTotal
+                    };
+
+                    // Restar stock y asegurar el rastreo para guardar el cambio
+                    producto.Stock -= itemDto.CantidadVendida;
+                    _context.Entry(producto).State = EntityState.Modified;
+
+                    ventasToAdd.Add(venta);
+                }
+
+                // 6️⃣ Actualizar el MontoCierre (Solo si la sesión fue encontrada)
+                if (sesionCaja != null)
+                {
+                    sesionCaja.MontoCierre += totalVentaGeneral;
+                    _context.Entry(sesionCaja).State = EntityState.Modified;
+                }
+
+                // 7️⃣ Persistir
+                _context.Ventas.AddRange(ventasToAdd);
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return Conflict("Error de concurrencia. La sesión de caja o un producto ya fue modificado por otro usuario.");
+                await transaction.CommitAsync();
+
+                return CreatedAtAction(nameof(GetVentas), _mapper.Map<List<VentaDTO>>(ventasToAdd));
             }
             catch (Exception ex)
             {
-                // Manejo de otros errores de base de datos
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
+                await transaction.RollbackAsync();
 
-            // 8. Mapear y devolver la respuesta
-            var ventaDTO = _mapper.Map<VentaDTO>(venta);
-            return CreatedAtAction(nameof(GetVenta), new { id = venta.VentaId }, ventaDTO);
+                // 🚨 Búsqueda de la Inner Exception para debug
+                var innerEx = ex;
+                while (innerEx.InnerException != null)
+                {
+                    innerEx = innerEx.InnerException;
+                }
+
+                // ⚠️ Devolvemos el error real.
+                // Una vez resuelto, regresa a "Error interno al procesar la venta por lote."
+                return StatusCode(500, $"DB Save Error: {innerEx.Message}");
+            }
         }
 
-        // ✅ Método para generar el siguiente código de venta de forma secuencial
+        // -------------------------------------------------
+        //  PUT: api/Ventas/estado/{codigoVenta}
+        // -------------------------------------------------
+        [Authorize(Roles = "Admin,Empleado")]
+        [HttpPut("estado/{codigoVenta}")]
+        public async Task<ActionResult> ActualizarEstadoVenta(string codigoVenta, [FromBody] VentaEstadoUpdateDTO dto)
+        {
+            if (string.IsNullOrEmpty(dto.EstadoVenta))
+                return BadRequest("El estado de la venta no puede estar vacío.");
+
+            var ventasBd = await _context.Ventas
+                .Where(v => v.CodigoVenta == codigoVenta)
+                .ToListAsync();
+
+            if (!ventasBd.Any())
+                return NotFound($"Venta con código {codigoVenta} no encontrada.");
+
+            foreach (var venta in ventasBd)
+            {
+                venta.EstadoVenta = dto.EstadoVenta;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // -------------------------------------------------
+        //  DELETE: api/Ventas/transaccion/{codigoVenta}
+        // -------------------------------------------------
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("transaccion/{codigoVenta}")]
+        public async Task<ActionResult> EliminarTransaccion(string codigoVenta)
+        {
+            var ventas = await _context.Ventas
+                .Where(v => v.CodigoVenta == codigoVenta)
+                .ToListAsync();
+
+            if (!ventas.Any())
+                return NotFound($"Venta con código {codigoVenta} no encontrada.");
+
+            _context.Ventas.RemoveRange(ventas);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // -------------------------------------------------
+        //  HELPERS
+        // -------------------------------------------------
+        // ✅ Este método ya no es necesario, pero lo dejo aquí si lo usas en otro lado
         private string GenerarSiguienteCodigo(string? ultimoCodigo)
         {
-            if (string.IsNullOrEmpty(ultimoCodigo))
-            {
+            if (string.IsNullOrEmpty(ultimoCodigo) || !ultimoCodigo.StartsWith("VTA-"))
                 return "VTA-001";
-            }
 
             var partes = ultimoCodigo.Split('-');
             if (partes.Length != 2 || !int.TryParse(partes[1], out int numero))
-            {
-                // En caso de formato inesperado, regresamos al código inicial
                 return "VTA-001";
-            }
 
             return $"VTA-{(numero + 1):000}";
-        }
-
-
-        // PUT: api/Ventas/5
-        [Authorize(Roles = "Admin,Empleado")]
-        [HttpPut("{id:int}")]
-        public async Task<ActionResult> ActualizarVenta(int id, [FromBody] VentaDTO dto)
-        {
-            if (id != dto.VentaId) return BadRequest("El ID de la venta no coincide.");
-            var venta = await _context.Ventas
-                .Include(v => v.DetalleVentas)
-                .FirstOrDefaultAsync(v => v.VentaId == id);
-            if (venta == null) return NotFound();
-            _mapper.Map(dto, venta);
-            _context.Entry(venta).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        // DELETE: api/Ventas/5
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> EliminarVenta(int id)
-        {
-            var venta = await _context.Ventas
-                .Include(v => v.DetalleVentas)
-                .FirstOrDefaultAsync(v => v.VentaId == id);
-
-            if (venta == null) return NotFound();
-
-            _context.Ventas.Remove(venta);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
     }
 }

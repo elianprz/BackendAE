@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BackendAE.Models;
 using BackendAE.DTOs;
+using System;
 
 namespace BackendAE.Helpers
 {
@@ -8,143 +9,138 @@ namespace BackendAE.Helpers
     {
         public AutoMapperProfiles()
         {
-            // Usuarios
-            //CreateMap<Usuario, UsuarioDTO>()
-            //    .ForMember(dest => dest.NombreUsuario, opt =>
-            //        opt.MapFrom(src => $"{src.PrimerNombre} {src.PrimerApellido}"))
-            //    .ForMember(dest => dest.RolNombre, opt =>
-            //        opt.MapFrom(src => src.Rol != null ? src.Rol.RolNombre : null));
+            // -------------------------------------------------
+            //  Usuarios
+            // -------------------------------------------------
             CreateMap<Usuario, UsuarioDTO>()
-                .ForMember(dest => dest.PrimerNombre, opt => opt.MapFrom(src => src.PrimerNombre))
-                .ForMember(dest => dest.SegundoNombre, opt => opt.MapFrom(src => src.SegundoNombre))
-                .ForMember(dest => dest.PrimerApellido, opt => opt.MapFrom(src => src.PrimerApellido))
-                .ForMember(dest => dest.SegundoApellido, opt => opt.MapFrom(src => src.SegundoApellido))
-                .ForMember(dest => dest.NIT, opt => opt.MapFrom(src => src.NIT))
-                .ForMember(dest => dest.CUI, opt => opt.MapFrom(src => src.CUI))
-                .ForMember(dest => dest.FechaNacimiento, opt => opt.MapFrom(src => src.FechaNacimiento))
-                .ForMember(dest => dest.Telefono, opt => opt.MapFrom(src => src.Telefono))
-                .ForMember(dest => dest.Direccion, opt => opt.MapFrom(src => src.Direccion))
-                .ForMember(dest => dest.Genero, opt => opt.MapFrom(src => src.Genero))
-                .ForMember(dest => dest.NombreUsuario, opt => opt.MapFrom(src => src.NombreUsuario))
-                .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => src.Estado))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-                .ForMember(dest => dest.RolId, opt => opt.MapFrom(src => src.RolId))
-                .ForMember(dest => dest.RolNombre, opt => opt.MapFrom(src => src.Rol != null ? src.Rol.RolNombre : null));
-
+                .ForMember(d => d.PrimerNombre, opt => opt.MapFrom(s => s.PrimerNombre))
+                .ForMember(d => d.SegundoNombre, opt => opt.MapFrom(s => s.SegundoNombre))
+                .ForMember(d => d.PrimerApellido, opt => opt.MapFrom(s => s.PrimerApellido))
+                .ForMember(d => d.SegundoApellido, opt => opt.MapFrom(s => s.SegundoApellido))
+                .ForMember(d => d.NIT, opt => opt.MapFrom(s => s.NIT))
+                .ForMember(d => d.CUI, opt => opt.MapFrom(s => s.CUI))
+                .ForMember(d => d.FechaNacimiento, opt => opt.MapFrom(s => s.FechaNacimiento))
+                .ForMember(d => d.Telefono, opt => opt.MapFrom(s => s.Telefono))
+                .ForMember(d => d.Direccion, opt => opt.MapFrom(s => s.Direccion))
+                .ForMember(d => d.Genero, opt => opt.MapFrom(s => s.Genero))
+                .ForMember(d => d.NombreUsuario, opt => opt.MapFrom(s => s.NombreUsuario))
+                .ForMember(d => d.Estado, opt => opt.MapFrom(s => s.Estado))
+                .ForMember(d => d.Email, opt => opt.MapFrom(s => s.Email))
+                .ForMember(d => d.RolId, opt => opt.MapFrom(s => s.RolId))
+                .ForMember(d => d.RolNombre, opt => opt.MapFrom(s => s.Rol != null ? s.Rol.RolNombre : null));
 
             CreateMap<UsuarioCreacionDTO, Usuario>()
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+                .ForMember(d => d.PasswordHash, opt => opt.Ignore());
 
             CreateMap<UsuarioActualizacionDTO, Usuario>();
-            // Roles
+
+            // -------------------------------------------------
+            //  Roles
+            // -------------------------------------------------
             CreateMap<Rol, RolDTO>();
             CreateMap<RolDTO, Rol>();
-            CreateMap<RolDTOCrear, Rol>(); // <<--- este faltaba
-            // Productos
+            CreateMap<RolDTOCrear, Rol>();
+
+            // -------------------------------------------------
+            //  Productos
+            // -------------------------------------------------
             CreateMap<Producto, ProductoDTO>()
-            .ForMember(dest => dest.NombreCategoria, opt =>
-             opt.MapFrom(src => src.CategoriaProducto != null ? src.CategoriaProducto.Nombre : null));
+                .ForMember(d => d.NombreCategoria,
+                           opt => opt.MapFrom(s => s.CategoriaProducto != null ? s.CategoriaProducto.Nombre : null));
 
             CreateMap<ProductoCreacionDTO, Producto>();
 
-            // Categorías de Productos
+            // -------------------------------------------------
+            //  Categorías de Producto
+            // -------------------------------------------------
             CreateMap<CategoriaProducto, CategoriaProductoDTO>();
             CreateMap<CategoriaProductoCreacionDTO, CategoriaProducto>();
 
-            // Proveedores
+            // -------------------------------------------------
+            //  Proveedores
+            // -------------------------------------------------
             CreateMap<Proveedor, ProveedorDTO>()
-            .ForMember(dest => dest.NombreCategoria, opt =>
-            opt.MapFrom(src => src.CategoriaProveedor != null ? src.CategoriaProveedor.Nombre : null));
+                .ForMember(d => d.NombreCategoria,
+                           opt => opt.MapFrom(s => s.CategoriaProveedor != null ? s.CategoriaProveedor.Nombre : null));
 
             CreateMap<ProveedorCreacionDTO, Proveedor>();
 
-            // Categorías de Proveedores
+            // -------------------------------------------------
+            //  Categorías de Proveedor
+            // -------------------------------------------------
             CreateMap<CategoriaProveedor, CategoriaProveedorDTO>();
             CreateMap<CategoriaProveedorCreacionDTO, CategoriaProveedor>();
 
-            // Compras
+            // -------------------------------------------------
+            //  COMPRAS  (sin tabla DetalleCompra)
+            // -------------------------------------------------
             CreateMap<Compra, CompraDTO>()
-            .ForMember(dest => dest.NombreEncargado, opt =>
-                opt.MapFrom(src => src.Proveedor != null ? src.Proveedor.NombreEncargado : null))
-             .ForMember(dest => dest.DetalleCompras, opt =>
-                opt.MapFrom(src => src.DetalleCompras));
+                .ForMember(d => d.NombreProveedor,
+                    opt => opt.MapFrom(s => s.Proveedor != null ? s.Proveedor.NombreEncargado : null))
+                .ForMember(d => d.Total, opt => opt.MapFrom(s => s.Total));
 
+            // <--- NUEVO: mapa de DTO → entidad (para Update) -----------------
+            CreateMap<CompraDTO, Compra>()
+                // Los campos que tengan el mismo nombre y tipo no necesitan
+                // configuración explícita, pero lo dejamos por claridad:
+                .ForMember(d => d.CompraId, opt => opt.MapFrom(s => s.CompraId))
+                .ForMember(d => d.FechaCompra, opt => opt.MapFrom(s => s.FechaCompra))
+                .ForMember(d => d.Observacion, opt => opt.MapFrom(s => s.Observacion))
+                .ForMember(d => d.Nombre, opt => opt.MapFrom(s => s.Nombre))
+                .ForMember(d => d.Descripcion, opt => opt.MapFrom(s => s.Descripcion))
+                .ForMember(d => d.Estado, opt => opt.MapFrom(s => s.Estado))
+                .ForMember(d => d.Stock, opt => opt.MapFrom(s => s.Stock))
+                .ForMember(d => d.PrecioAdquisicion, opt => opt.MapFrom(s => s.PrecioAdquisicion))
+                .ForMember(d => d.PrecioVenta, opt => opt.MapFrom(s => s.PrecioVenta))
+                .ForMember(d => d.ProveedorId, opt => opt.MapFrom(s => s.ProveedorId))
+                // El total normalmente se calcula en el service, por eso lo ignoramos:
+                .ForMember(d => d.Total, opt => opt.Ignore());
+            
             CreateMap<CompraCreacionDTO, Compra>();
-
-            CreateMap<DetalleCompra, DetalleCompraDTO>()
-                .ForMember(dest => dest.NombreProducto, opt =>
-                    opt.MapFrom(src => src.Producto != null ? src.Producto.Nombre : null));
-
-            CreateMap<DetalleCompraCreacionDTO, DetalleCompra>();
-
-            // Ventas
-            // Mapear de entidad a DTO
-            CreateMap<VentaDTO, Venta>();
-
-            // ✅ CLAVE: Actualiza tu mapeo de VentaDTO a Venta para ignorar el UsuarioId
-            CreateMap<VentaDTO, Venta>()
-                .ForMember(dest => dest.UsuarioId, opt => opt.Ignore())
-                .ForMember(dest => dest.CajaSesionId, opt => opt.Ignore()); // ✅ Agrega esta línea
-
-            // Mapeo de Entidad a DTO
+            // -------------------------------------------------
+            //  VENTAS  (sin tabla DetalleVenta)
+            // -------------------------------------------------
+            // Entidad → DTO
             CreateMap<Venta, VentaDTO>()
-                .ForMember(dest => dest.DetalleVentas, opt => opt.MapFrom(src => src.DetalleVentas));
+                .ForMember(d => d.SubTotal, opt => opt.MapFrom(s => s.SubTotal))
+                .ForMember(d => d.CantidadVendida, opt => opt.MapFrom(s => s.CantidadVendida))
+                .ForMember(d => d.PrecioUnitario, opt => opt.MapFrom(s => s.PrecioUnitario))
+                .ForMember(d => d.ProductoId, opt => opt.MapFrom(s => s.ProductoId));
 
-            // Mapeo de DTO a Entidad
+            // DTO → Entidad (creación)
             CreateMap<VentaCreacionDTO, Venta>()
-                .ForMember(dest => dest.VentaId, opt => opt.Ignore())
-                .ForMember(dest => dest.CodigoVenta, opt => opt.Ignore())
-                .ForMember(dest => dest.FechaVenta, opt => opt.Ignore())
-                //.ForMember(dest => dest.EstadoVenta, opt => opt.Ignore())
-                .ForMember(dest => dest.DetalleVentas, opt => opt.MapFrom(src => src.DetalleVentas));
+                .ForMember(d => d.VentaId, opt => opt.Ignore())
+                .ForMember(d => d.CodigoVenta, opt => opt.Ignore())
+                .ForMember(d => d.FechaVenta, opt => opt.Ignore())
+                .ForMember(d => d.EstadoVenta, opt => opt.Ignore())
+                .ForMember(d => d.Total, opt => opt.Ignore())
+                .ForMember(d => d.SubTotal, opt => opt.Ignore())   // lo calculamos en el Service
+                .ForMember(d => d.CajaSesionId, opt => opt.Ignore())
+                .ForMember(d => d.UsuarioId, opt => opt.Ignore())
+                .ForMember(d => d.ProductoId, opt => opt.MapFrom(s => s.ProductoId))
+                .ForMember(d => d.CantidadVendida,
+                           opt => opt.MapFrom(s => s.CantidadVendida))
+                .ForMember(d => d.PrecioUnitario,
+                           opt => opt.MapFrom(s => s.PrecioUnitario));
 
-            // Mapeo bidireccional para el detalle de la venta
-
-            // Mapeo de DTO a Entidad (el que ya tenías)
-            CreateMap<DetalleVentaDTO, DetalleVenta>();
-
-            // ESTE ES EL MAPEO QUE FALTABA Y CAUSABA EL ERROR
-            // Mapeo de Entidad a DTO (necesario para la respuesta de la API)
-            CreateMap<DetalleVenta, DetalleVentaDTO>();
-
-            // De DTO de creación a entidad
-            CreateMap<DetalleVentaCreacionDTO, DetalleVenta>()
-                .ForMember(dest => dest.DetalleVentaId, opt => opt.Ignore()) // generado por DB
-                .ForMember(dest => dest.VentaId, opt => opt.Ignore())        // lo agregas manualmente en backend si hace falta
-                .ForMember(dest => dest.PrecioUnitario, opt => opt.MapFrom(src => src.PrecioUnitario ?? 0))
-                .ForMember(dest => dest.Subtotal, opt => opt.MapFrom(src => src.Subtotal ?? 0));
-
-            // Categoria Producto
-            CreateMap<CategoriaProducto, CategoriaProductoDTO>();
-            CreateMap<CategoriaProductoCreacionDTO, CategoriaProducto>();
-            // Caja
+            // -------------------------------------------------
+            //  Caja / CajaSesion / MovimientoCaja
+            // -------------------------------------------------
             CreateMap<Caja, CajaDTO>();
             CreateMap<CajaCreacionDTO, Caja>();
-            // CajaSesion
+
             CreateMap<CajaSesion, CajaSesionDTO>()
-            .ForMember(dest => dest.NombreCaja, opt =>
-                opt.MapFrom(src => src.Caja != null ? src.Caja.Nombre : null));
-            //.ForMember(dest => dest.UsuarioId, opt =>
-            //    opt.MapFrom(src => src.UsuarioCierre != null ? src.UsuarioCierre.UsuarioId : (int?)null));
+                .ForMember(d => d.NombreCaja,
+                           opt => opt.MapFrom(s => s.Caja != null ? s.Caja.Nombre : null));
 
-            // Mapear de DTO de creación a entidad
             CreateMap<CajaSesionCreacionDTO, CajaSesion>();
-            // MovimientoCaja
-            
-            CreateMap<MovimientoCaja, MovimientoCajaDTO>();
 
-            
+            CreateMap<MovimientoCaja, MovimientoCajaDTO>();
             CreateMap<MovimientoCajaCreacionDTO, MovimientoCaja>();
 
-
-            // DetalleCompra
-            CreateMap<DetalleCompra, DetalleCompraDTO>()
-                .ForMember(dest => dest.NombreProducto, opt =>
-                    opt.MapFrom(src => src.Producto != null ? src.Producto.Nombre : null));
-            // DetalleVenta
-            
-
-            // Aquí irían más mapeos (Producto, Categoria, Proveedor, etc.)
+            // -------------------------------------------------
+            //  (Recordemos que los mapeos de DetalleCompra / DetalleVenta se eliminaron)
+            // -------------------------------------------------
         }
     }
 }

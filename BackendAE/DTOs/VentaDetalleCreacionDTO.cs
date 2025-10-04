@@ -2,8 +2,8 @@
 {
     public class VentaDetalleCreacionDTO
     {
-        public int ProductoId { get; set; }
-        public int Cantidad { get; set; }
-        public decimal PrecioUnitario { get; set; }
+        public required int ProductoId { get; set; }
+        public required int CantidadVendida { get; set; }
+        public required decimal PrecioUnitario { get; set; }
     }
 }

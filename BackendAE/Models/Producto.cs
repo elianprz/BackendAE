@@ -40,8 +40,5 @@ namespace BackendAE.Models
         public int CategoriaId { get; set; }
         [ForeignKey("CategoriaId")]
         public CategoriaProducto? CategoriaProducto { get; set; }
-        // Relaciones 1:N con DetalleCompra y DetalleVenta
-        public ICollection<DetalleCompra>? DetallesCompras { get; set; }
-        public ICollection<DetalleVenta>? DetallesVentas { get; set; }
     }
 }

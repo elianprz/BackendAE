@@ -162,9 +162,15 @@ namespace BackendAE.Migrations
                     CompraId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FechaCompra = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Total = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     Observacion = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    ProveedorId = table.Column<int>(type: "int", nullable: false)
+                    Nombre = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Estado = table.Column<bool>(type: "bit", nullable: false),
+                    Stock = table.Column<int>(type: "int", nullable: false),
+                    PrecioAdquisicion = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    PrecioVenta = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
+                    ProveedorId = table.Column<int>(type: "int", nullable: false),
+                    Total = table.Column<decimal>(type: "decimal(12,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -217,35 +223,6 @@ namespace BackendAE.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DetalleCompra",
-                columns: table => new
-                {
-                    DetalleCompraId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Cantidad = table.Column<int>(type: "int", nullable: false),
-                    PrecioUnitario = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    Subtotal = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    CompraId = table.Column<int>(type: "int", nullable: false),
-                    ProductoId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DetalleCompra", x => x.DetalleCompraId);
-                    table.ForeignKey(
-                        name: "FK_DetalleCompra_Compras_CompraId",
-                        column: x => x.CompraId,
-                        principalTable: "Compras",
-                        principalColumn: "CompraId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DetalleCompra_Productos_ProductoId",
-                        column: x => x.ProductoId,
-                        principalTable: "Productos",
-                        principalColumn: "ProductoId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MovimientosCaja",
                 columns: table => new
                 {
@@ -287,6 +264,10 @@ namespace BackendAE.Migrations
                     EfectivoRecibido = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     Cambio = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     EstadoVenta = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: false),
+                    ProductoId = table.Column<int>(type: "int", nullable: true),
+                    CantidadVendida = table.Column<int>(type: "int", nullable: false),
+                    PrecioUnitario = table.Column<decimal>(type: "decimal(12,2)", precision: 12, scale: 2, nullable: false),
+                    SubTotal = table.Column<decimal>(type: "decimal(12,2)", precision: 12, scale: 2, nullable: false),
                     UsuarioId = table.Column<int>(type: "int", nullable: false),
                     CajaSesionId = table.Column<int>(type: "int", nullable: true)
                 },
@@ -300,39 +281,16 @@ namespace BackendAE.Migrations
                         principalColumn: "CajaSesionId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Ventas_Productos_ProductoId",
+                        column: x => x.ProductoId,
+                        principalTable: "Productos",
+                        principalColumn: "ProductoId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_Ventas_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
                         principalTable: "Usuarios",
                         principalColumn: "UsuarioId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DetallesVentas",
-                columns: table => new
-                {
-                    DetalleVentaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Cantidad = table.Column<int>(type: "int", nullable: false),
-                    PrecioUnitario = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    Subtotal = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    VentaId = table.Column<int>(type: "int", nullable: false),
-                    ProductoId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DetallesVentas", x => x.DetalleVentaId);
-                    table.ForeignKey(
-                        name: "FK_DetallesVentas_Productos_ProductoId",
-                        column: x => x.ProductoId,
-                        principalTable: "Productos",
-                        principalColumn: "ProductoId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DetallesVentas_Ventas_VentaId",
-                        column: x => x.VentaId,
-                        principalTable: "Ventas",
-                        principalColumn: "VentaId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -355,26 +313,6 @@ namespace BackendAE.Migrations
                 name: "IX_Compras_ProveedorId",
                 table: "Compras",
                 column: "ProveedorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DetalleCompra_CompraId",
-                table: "DetalleCompra",
-                column: "CompraId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DetalleCompra_ProductoId",
-                table: "DetalleCompra",
-                column: "ProductoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DetallesVentas_ProductoId",
-                table: "DetallesVentas",
-                column: "ProductoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DetallesVentas_VentaId",
-                table: "DetallesVentas",
-                column: "VentaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MovimientosCaja_CajaSesionId",
@@ -426,10 +364,9 @@ namespace BackendAE.Migrations
                 column: "CajaSesionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ventas_CodigoVenta",
+                name: "IX_Ventas_ProductoId",
                 table: "Ventas",
-                column: "CodigoVenta",
-                unique: true);
+                column: "ProductoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ventas_UsuarioId",
@@ -441,19 +378,10 @@ namespace BackendAE.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DetalleCompra");
-
-            migrationBuilder.DropTable(
-                name: "DetallesVentas");
-
-            migrationBuilder.DropTable(
-                name: "MovimientosCaja");
-
-            migrationBuilder.DropTable(
                 name: "Compras");
 
             migrationBuilder.DropTable(
-                name: "Productos");
+                name: "MovimientosCaja");
 
             migrationBuilder.DropTable(
                 name: "Ventas");
@@ -462,10 +390,10 @@ namespace BackendAE.Migrations
                 name: "Proveedores");
 
             migrationBuilder.DropTable(
-                name: "CategoriasProductos");
+                name: "CajaSesiones");
 
             migrationBuilder.DropTable(
-                name: "CajaSesiones");
+                name: "Productos");
 
             migrationBuilder.DropTable(
                 name: "CategoriasProveedores");
@@ -475,6 +403,9 @@ namespace BackendAE.Migrations
 
             migrationBuilder.DropTable(
                 name: "Usuarios");
+
+            migrationBuilder.DropTable(
+                name: "CategoriasProductos");
 
             migrationBuilder.DropTable(
                 name: "Roles");

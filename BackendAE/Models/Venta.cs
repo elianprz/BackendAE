@@ -32,17 +32,26 @@ namespace BackendAE.Models
         [StringLength(12)]
         public required string EstadoVenta { get; set; }
 
-        // Clave foránea N:1 con Usuario
+        // ------------------- NUEVO -------------------
+        // FK opcional al producto vendido (ahora **nullable**)
+        public int? ProductoId { get; set; }
+
+        [ForeignKey(nameof(ProductoId))]
+        public Producto? Producto { get; set; }
+
+        public int CantidadVendida { get; set; }          // cantidad vendida
+        public decimal PrecioUnitario { get; set; }       // precio por unidad
+        public decimal SubTotal { get; set; }             // CantidadVendida * PrecioUnitario
+
+        // -----------------------------------------------------------------
+        //  Relaciones con Usuario y CajaSesion (siguen igual)
+        // -----------------------------------------------------------------
         [ForeignKey("Usuario")]
         public int UsuarioId { get; set; }
         public Usuario? Usuario { get; set; }
 
-        // Clave foránea N:1 con CajaSesion
         [ForeignKey("CajaSesion")]
         public int? CajaSesionId { get; set; }
         public CajaSesion? CajaSesion { get; set; }
-
-        // Propiedad de navegación 1:N con DetalleVenta
-        public ICollection<DetalleVenta>? DetalleVentas { get; set; }
     }
 }

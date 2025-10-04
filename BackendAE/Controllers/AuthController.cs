@@ -57,7 +57,7 @@ namespace BackendAE.Controllers
                 NIT = "9000034567890",
                 CUI = "9000034567890",
                 FechaIngreso = DateTime.UtcNow,
-                FechaNacimiento = DateTime.Parse("03-06-2002"),
+                FechaNacimiento = DateTime.Parse("03-06-2003"),
                 Genero = "M",
                 FechaUltimoCambioContrasena = DateTime.UtcNow,
                 RolId = adminRole.RolId
