@@ -286,6 +286,7 @@ using BackendAE.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient; // Necesario para detectar SqlException
 
 namespace BackendAE.Controllers
 {
@@ -352,9 +353,15 @@ namespace BackendAE.Controllers
                 return BadRequest("El RolId especificado no existe.");
             }
 
+
+            var primerNombreLimpio = LimpiarDiacriticos(dto.PrimerNombre).ToLower();
+            var primerApellidoLimpio = LimpiarDiacriticos(dto.PrimerApellido).ToLower();
+
             // Generar Nombre de Usuario
-            var nombreGenerado = $"{dto.PrimerNombre.ToLower().Substring(0, Math.Min(dto.PrimerNombre.Length, 3))}" +
-                                 $"{dto.PrimerApellido.ToLower().Substring(0, Math.Min(dto.PrimerApellido.Length, 3))}";
+            //var nombreGenerado = $"{dto.PrimerNombre.ToLower().Substring(0, Math.Min(dto.PrimerNombre.Length, 3))}" +
+            //                     $"{dto.PrimerApellido.ToLower().Substring(0, Math.Min(dto.PrimerApellido.Length, 3))}";
+            var nombreGenerado = $"{primerNombreLimpio.Substring(0, Math.Min(primerNombreLimpio.Length, 3))}" +
+                     $"{primerApellidoLimpio.Substring(0, Math.Min(primerApellidoLimpio.Length, 3))}";
 
             // ✅ Validar si el nombre de usuario generado ya existe
             var usuarioExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.NombreUsuario == nombreGenerado);
@@ -382,7 +389,8 @@ namespace BackendAE.Controllers
                     { "@NombreUsuario", usuario.NombreUsuario },
                     { "@ContrasenaTemporal", contrasenaTemporal }
                 };
-                await _emailService.SendEmailAsync(usuario.Email, "Bienvenido a nuestro sistema", templatePath, replacements);
+                //await _emailService.SendEmailAsync(usuario.Email, "Bienvenido a nuestro sistema", templatePath, replacements);
+                _emailService.SendEmailAsync(usuario.Email, "Bienvenido a nuestro sistema", templatePath, replacements);
             }
             catch (DbUpdateException ex)
             {
@@ -393,6 +401,38 @@ namespace BackendAE.Controllers
             var usuarioDTO = _mapper.Map<UsuarioDTO>(usuario);
             return CreatedAtAction(nameof(GetUsuario), new { id = usuario.UsuarioId }, usuarioDTO);
         }
+
+        public static string LimpiarDiacriticos(string texto)
+        {
+            // 1. Normalizar la cadena a NFD (Normalization Form D)
+            // Esto separa la letra de su diacrítico (ej: 'á' se convierte en 'a' y el caracter de tilde)
+            string textoNormalizado = texto.Normalize(System.Text.NormalizationForm.FormD);
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+            // 2. Recorrer la cadena normalizada y filtrar
+            foreach (char c in textoNormalizado)
+            {
+                // 3. Chequear si el caracter pertenece a la categoría de "Marca no espaciadora" (NonSpacingMark)
+                // Estas son las tildes, diéresis, etc. Si no es un diacrítico, lo añadimos.
+                if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+
+            // 4. Volver a Normalizar a NFC (Normalization Form C) para componer los caracteres que no tenían diacríticos
+            // y eliminar cualquier caracter de control o formato que pudiera haberse quedado.
+            string textoSinDiacriticos = sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
+
+            // 5. Opcional: Si quieres quitar otros símbolos o espacios, puedes hacerlo aquí
+            // Por ejemplo, para quitar espacios y reemplazar por un guion:
+            // return textoSinDiacriticos.Replace(' ', '-');
+
+            // Para el nombre de usuario, vamos a quitar cualquier caracter que no sea letra o dígito después de la normalización
+            // Esto es más seguro para nombres de usuario.
+            return new string(textoSinDiacriticos.Where(c => char.IsLetterOrDigit(c)).ToArray());
+        }
+
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
@@ -480,7 +520,8 @@ namespace BackendAE.Controllers
                     { "@NombreUsuario", usuario.NombreUsuario },
                     { "@ContrasenaTemporal", nuevaContrasenaTemporal }
                 };
-                await _emailService.SendEmailAsync(usuario.Email, "Recuperación de contraseña", templatePath, replacements);
+                //await _emailService.SendEmailAsync(usuario.Email, "Recuperación de contraseña", templatePath, replacements);
+                _emailService.SendEmailAsync(usuario.Email, "Recuperación de contraseña", templatePath, replacements);
                 return Ok("Se ha enviado una nueva contraseña temporal a tu correo electrónico.");
             }
             catch (DbUpdateException)
@@ -522,15 +563,56 @@ namespace BackendAE.Controllers
             return Ok(emailExists);
         }
 
+        //[Authorize(Roles = "Admin")]
+        //[HttpDelete("{id:int}")]
+        //public async Task<ActionResult> EliminarUsuario(int id)
+        //{
+        //    var usuario = await _context.Usuarios.FindAsync(id);
+        //    if (usuario == null) return NotFound();
+        //    _context.Usuarios.Remove(usuario);
+        //    await _context.SaveChangesAsync();
+        //    return NoContent();
+        //}
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> EliminarUsuario(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null) return NotFound();
-            _context.Usuarios.Remove(usuario);
-            await _context.SaveChangesAsync();
-            return NoContent();
+
+            if (usuario == null)
+            {
+                return NotFound(new { mensaje = "Usuario no encontrado." });
+            }
+
+            try
+            {
+                // Intenta la eliminación física
+                _context.Usuarios.Remove(usuario);
+                await _context.SaveChangesAsync();
+
+                return NoContent(); // 204 Éxito
+            }
+            catch (DbUpdateException ex)
+            {
+                // 🚨 Capturar la excepción interna para verificar el código de error de SQL.
+                var sqlException = ex.InnerException as SqlException;
+
+                // El Error Number 547 corresponde a un conflicto de FOREIGN KEY (Restricción de Referencia).
+                if (sqlException != null && sqlException.Number == 547)
+                {
+                    // Devolver 409 Conflict para indicar que la solicitud no pudo ser completada
+                    // debido a un conflicto con el estado actual del recurso (integridad referencial).
+                    return Conflict(new
+                    {
+                        mensaje = $"No se puede eliminar el usuario con ID {id} ({usuario.NombreUsuario}). Este usuario está **vinculado a registros históricos** en el sistema, considere transferir sus operaciones o deshabilitar al usuario.",
+                        detalle = "La eliminación física está restringida para proteger la integridad de los datos. Considere cambiar el estado del usuario a 'Inactivo' en su lugar.",
+                        codigoErrorSql = 547
+                    });
+                }
+
+                // Para otros errores de DbUpdate (ej. problemas de red, otros errores de SQL), devolver 500.
+                return StatusCode(500, new { mensaje = "Ocurrió un error inesperado en el servidor al intentar eliminar el usuario." });
+            }
         }
     }
 }

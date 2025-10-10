@@ -44,21 +44,21 @@ namespace BackendAE.Controllers
 
             var admin = new Usuario
             {
-                PrimerNombre = "admin",
-                SegundoNombre = "admin",
-                PrimerApellido = "admin",
-                SegundoApellido = "admin",
-                Email = "elianp812@gmail.com",
+                PrimerNombre = "Leidy",
+                SegundoNombre = "Lilien",
+                PrimerApellido = "Rosales",
+                SegundoApellido = "Tozc",
+                Email = "leidyrosales672@gmail.com",
                 NombreUsuario = "admin",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(contrasenaTemporal),
                 Estado = true,
-                Telefono = "12345678",
-                Direccion = "admin",
-                NIT = "9000034567890",
-                CUI = "9000034567890",
+                Telefono = "58670527",
+                Direccion = "Pajachel, Sololá",
+                NIT = "2457443200710",
+                CUI = "2457443200710",
                 FechaIngreso = DateTime.UtcNow,
-                FechaNacimiento = DateTime.Parse("03-06-2003"),
-                Genero = "M",
+                FechaNacimiento = DateTime.Parse("10-12-1975"),
+                Genero = "F",
                 FechaUltimoCambioContrasena = DateTime.UtcNow,
                 RolId = adminRole.RolId
             };
@@ -75,7 +75,8 @@ namespace BackendAE.Controllers
         { "@NombreUsuario", admin.NombreUsuario },
         { "@ContrasenaTemporal", contrasenaTemporal }
     };
-            await _emailService.SendEmailAsync(admin.Email, "Bienvenido a nuestro sistema Admin", templatePath, replacements);
+            //await _emailService.SendEmailAsync(admin.Email, "Bienvenido a nuestro sistema Admin", templatePath, replacements);
+             _emailService.SendEmailAsync(admin.Email, "Bienvenido a nuestro sistema Admin", templatePath, replacements);
 
             return Ok(new
             {

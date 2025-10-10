@@ -36,7 +36,8 @@ public class SoporteController : ControllerBase
 
         try
         {
-            await _emailService.SendEmailAsync(destinatario, asunto, templatePath, replacements);
+            //await _emailService.SendEmailAsync(destinatario, asunto, templatePath, replacements);
+            _emailService.SendEmailAsync(destinatario, asunto, templatePath, replacements);
             return Ok("Mensaje de soporte enviado correctamente.");
         }
         catch (Exception ex)

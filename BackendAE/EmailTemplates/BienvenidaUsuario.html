@@ -1,12 +1,95 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Bienvenido</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido/a</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4; /* Fondo suave */
+            color: #333333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dddddd;
+        }
+
+        .header {
+            background-color: #007bff; /* Azul primario, profesional */
+            color: #ffffff;
+            padding: 20px 30px;
+            text-align: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+            .header h1 {
+                margin: 0;
+                font-size: 24px;
+            }
+
+        .content {
+            padding: 30px;
+            line-height: 1.6;
+        }
+
+        .credentials-box {
+            background-color: #e6f3ff; /* Fondo claro para destacar credenciales */
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 5px solid #007bff;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            padding: 20px 30px;
+            border-top: 1px solid #eeeeee;
+            font-size: 12px;
+            color: #777777;
+            text-align: center;
+        }
+    </style>
 </head>
-<body>
-    <p>Hola, <strong>@PrimerNombre</strong></p>
-    <p>Tu cuenta ha sido creada. Tu usuario es <strong>@NombreUsuario</strong> y tu contraseña temporal es: <strong>@ContrasenaTemporal</strong></p>
-    <p>Por favor, inicia sesión y cámbiala lo antes posible.</p>
-    <p>Saludos,<br />El equipo de A&E.</p>
+<body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333333;">
+
+    <div class="container" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border: 1px solid #dddddd; border-collapse: collapse;">
+
+        <div class="header" style="background-color: #007bff; color: #ffffff; padding: 20px 30px; text-align: center; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+            <h1 style="margin: 0; font-size: 24px;">🎉 Cuenta Creada Exitosamente</h1>
+        </div>
+
+        <div class="content" style="padding: 30px; line-height: 1.6;">
+            <p style="margin-top: 0; margin-bottom: 15px;">Hola, <strong style="color: #007bff;">@PrimerNombre</strong>,</p>
+
+            <p style="margin-bottom: 15px;">
+                ¡Tu cuenta ha sido creada! Ya puedes acceder a nuestro sistema con las siguientes credenciales:
+            </p>
+
+            <div class="credentials-box" style="background-color: #e6f3ff; padding: 15px; border-radius: 4px; border-left: 5px solid #007bff; margin-top: 20px; margin-bottom: 20px;">
+                <p style="margin: 0 0 8px 0;">Tu **Usuario** es: <strong style="color: #333333; font-size: 1.1em; display: block; word-break: break-all;">@NombreUsuario</strong></p>
+                <p style="margin: 0;">Tu **Contraseña Temporal** es: <strong style="color: #333333; font-size: 1.1em; display: block; word-break: break-all;">@ContrasenaTemporal</strong></p>
+            </div>
+
+            <p style="margin-bottom: 15px;">
+                **Importante**: Por motivos de seguridad, por favor, <strong style="color: #dc3545;">inicia sesión y cámbiala lo antes posible.</strong>
+            </p>
+
+            <p style="margin-bottom: 0;">Saludos cordiales,</p>
+            <p style="margin-bottom: 0;"><strong style="color: #333333;">El equipo de A&E.</strong></p>
+        </div>
+
+        <div class="footer" style="padding: 20px 30px; border-top: 1px solid #eeeeee; font-size: 12px; color: #777777; text-align: center; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+            Este es un correo automático. Por favor, no lo respondas.
+        </div>
+    </div>
 </body>
 </html>

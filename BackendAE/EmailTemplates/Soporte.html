@@ -1,23 +1,110 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Soporte</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Ticket de Soporte</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa; /* Fondo muy claro */
+            color: #343a40; /* Texto oscuro */
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9ecef;
+        }
+
+        .header {
+            background-color: #17a2b8; /* Color de información/soporte (Cyan) */
+            color: #ffffff;
+            padding: 20px 30px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+
+            .header h2 {
+                margin: 0;
+                font-size: 20px;
+            }
+
+        .content {
+            padding: 25px 30px;
+            line-height: 1.6;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #17a2b8; /* Color de acento para las etiquetas */
+            display: inline-block;
+            width: 120px; /* Ancho fijo para alinear los valores */
+        }
+
+        .message-block {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .footer {
+            padding: 15px 30px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: #6c757d;
+            text-align: center;
+            background-color: #f1f1f1;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h2>Nuevo mensaje de soporte</h2>
+<body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: #343a40;">
+
+    <div class="container" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #e9ecef; border-collapse: collapse;">
+
+        <div class="header" style="background-color: #17a2b8; color: #ffffff; padding: 20px 30px; border-top-left-radius: 6px; border-top-right-radius: 6px;">
+            <h2 style="margin: 0; font-size: 20px;">📧 Nuevo Ticket de Soporte Registrado</h2>
         </div>
-        <div class="content">
-            <p><strong>De:</strong> @PrimerNombre @PrimerApellido</p>
-            <p><strong>Correo Electrónico:</strong> <a href="mailto:@Correo">@Correo</a></p>
-            <p><strong>Asunto:</strong> @Asunto</p>
-            <hr>
-            <p><strong>Mensaje:</strong></p>
-            <p>@Mensaje</p>
+
+        <div class="content" style="padding: 25px 30px; line-height: 1.6;">
+            <p style="margin-top: 0; margin-bottom: 20px;">
+                Se ha recibido una nueva solicitud de soporte que requiere atención:
+            </p>
+
+            <p style="margin: 0 0 10px 0;">
+                <span class="info-label" style="font-weight: bold; color: #17a2b8; display: inline-block; width: 110px;">De:</span>
+                @PrimerNombre @PrimerApellido
+            </p>
+            <p style="margin: 0 0 10px 0;">
+                <span class="info-label" style="font-weight: bold; color: #17a2b8; display: inline-block; width: 110px;">Email:</span>
+                <a href="mailto:@Correo" style="color: #007bff; text-decoration: none;">@Correo</a>
+            </p>
+            <p style="margin: 0 0 20px 0;">
+                <span class="info-label" style="font-weight: bold; color: #17a2b8; display: inline-block; width: 110px;">Asunto:</span>
+                <strong>@Asunto</strong>
+            </p>
+
+            <hr style="border: 0; border-top: 1px solid #e9ecef; margin: 20px 0;">
+
+            <p style="font-weight: bold; color: #343a40; margin-bottom: 10px;">Mensaje completo:</p>
+
+            <div class="message-block" style="background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; margin-top: 15px; border-radius: 4px;">
+                <p style="margin: 0; white-space: pre-wrap; font-size: 14px;">@Mensaje</p>
+            </div>
+
         </div>
-        <div class="footer">
-            Este es un correo automático. Por favor, no respondas a esta dirección.
+
+        <div class="footer" style="padding: 15px 30px; border-top: 1px solid #e9ecef; font-size: 11px; color: #6c757d; text-align: center; background-color: #f1f1f1; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px;">
+            Este es un correo automático de notificación de soporte. Por favor, no respondas a esta dirección de email.
         </div>
     </div>
 </body>
